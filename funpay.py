@@ -1,5 +1,9 @@
 from playwright.sync_api import sync_playwright
 import requests
+from bs4 import BeautifulSoup
+import time
+from LxmlSoup import LxmlSoup
+from parsel import Selector
 
 def funpay_fm(tmp_msg="",id_lot=25790923):
     cookies = {
@@ -39,3 +43,35 @@ def funpay_fm(tmp_msg="",id_lot=25790923):
     }
 
     response = requests.post('https://funpay.com/runner/', cookies=cookies, headers=headers, data=data)
+
+def get_funpay_pos(url:str='https://funpay.com/lots/offer?id=25652267'):
+    req = requests.get(url=url)
+    selector = Selector(text=req.text)
+    
+    price = selector.xpath('//html/body/div/div[1]/section/div[2]/div/div/div/div[2]/div/div[2]/form/div[1]/select/option[@class="hidden" and contains(@data-content, "от 33 360.49 ₽")]').get()
+
+    print(price)
+
+
+    soup = BeautifulSoup(req.content,'lxml')
+    description = soup.select_one('.param-item h5:contains("Краткое описание") + div').get_text(strip=True)
+    # Extract other parameters from the 'row' section
+    param_rows = soup.select('.row .col-xs-6')
+    parameters = {}
+    for row in param_rows:
+        try:
+            key = row.select_one('.param-item h5').get_text(strip=True)
+            value = row.select_one('.param-item .text-bold').get_text(strip=True)
+            parameters[key] = value
+        except AttributeError:
+            break
+
+    # Print or use the extracted information
+    print(f"Price: {price}")
+    print(f"Description: {description}")
+    print("Other parameters:")
+    for key, value in parameters.items():
+        print(f"{key}: {value}")
+
+
+get_funpay_pos()
