@@ -19,4 +19,4 @@ async def main():
 
 # asyncio.run(main())
 
-get_funpay_pos('https://funpay.com/lots/offer?id=20813290')
+get_funpay_pos('https://funpay.com/lots/offer?id=24666646')
