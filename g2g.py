@@ -2,7 +2,7 @@ import json
 from playwright.async_api import async_playwright
 import time
 from bs4 import BeautifulSoup
-from funpay import funpay_fm
+import asyncio
 def g2g_fm(page,name):
 
     page.locator(f'div:text("{name}")').click()
@@ -33,7 +33,7 @@ async def get_messages():
             print('No cookies')
         page = await browser.new_page()
         await page.goto("https://www.g2g.com/chat/#/")
-
+        time.sleep(100)
         # Wait for the element to be present
         page.wait_for_selector('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
         # Get the inner HTML of the specified element
@@ -58,6 +58,22 @@ async def get_messages():
         
         return ls
 
+async def g2g_create_order(data:dict={}):
+    
+    data_dir = "./data1/"
+    async with async_playwright() as p:
+        browser = await p.chromium.launch_persistent_context(headless = False,user_data_dir=data_dir)
+        try:
+
+            # Load the cookies
+            with open(data_dir+"cookies.json", "r") as f:
+                cookies = json.loads(f.read())
+                browser.add_cookies(cookies)
+        except (FileNotFoundError,json.decoder.JSONDecodeError):
+            print('No cookies')
+        page = await browser.new_page()
+        await page.goto("https://www.g2g.com/sell/index",timeout=0)
+        time.sleep(1000)
 
 
 
@@ -77,11 +93,6 @@ async def g2g_unread_message(page,name,unread_msg):
     # Extract relevant information from each message
     message_list = []
     chat_messages.reverse()
-
-    # page.wait_for_selector('//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[2]/div')
-    # first_message = soup.find('div', class_='g-chat-message').find('a', target='_blank')
-    # if first_message:
-    #     url = first_message['href']
 
 
     for message,_ in zip(chat_messages,range(unread_msg)):
@@ -103,3 +114,6 @@ async def g2g_unread_message(page,name,unread_msg):
             
 
     return message_list
+
+
+asyncio.run(g2g_create_order())
