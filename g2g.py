@@ -33,13 +33,14 @@ async def get_messages():
             print('No cookies')
         page = await browser.new_page()
         await page.goto("https://www.g2g.com/chat/#/")
+
         # Wait for the element to be present
         page.wait_for_selector('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
         # Get the inner HTML of the specified element
         inner_html = await page.inner_html('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
-
         soup = BeautifulSoup(inner_html, 'html.parser')
         spans = soup.find_all('span', {'id': lambda x: x and x.startswith('channel-item')})
+
 
         result_list = []
 
@@ -48,7 +49,7 @@ async def get_messages():
             unread_msg = extract_data_from_span(span)
             
             result_list.append({'username': username, 'unread_msg': unread_msg})
-        
+
         ls = list()
 
         for item in result_list:
@@ -76,6 +77,13 @@ async def g2g_unread_message(page,name,unread_msg):
     # Extract relevant information from each message
     message_list = []
     chat_messages.reverse()
+
+    # page.wait_for_selector('//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[2]/div')
+    # first_message = soup.find('div', class_='g-chat-message').find('a', target='_blank')
+    # if first_message:
+    #     url = first_message['href']
+
+
     for message,_ in zip(chat_messages,range(unread_msg)):
         try:
             timestamp = message.find('div', class_='text-secondary').text.strip()
@@ -88,7 +96,7 @@ async def g2g_unread_message(page,name,unread_msg):
             message_list.append({
                 'timestamp': timestamp,
                 'content': message_content,
-                'is_order_message': is_order_message
+                'is_order_message': is_order_message,
             })
         except AttributeError:
             print('first msg')

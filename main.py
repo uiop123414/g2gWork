@@ -11,9 +11,10 @@ async def main():
         ls = await get_messages()
         if ls != []:
             for item in ls:
-                text_msg = "Nichname "+item['username']+'\nMessage: '
+                text_msg = "Nickname "+item['username']+'\nMessage: '
                 for message in item['messages']:
                     text_msg +=message['content']+'\n'
+                # text_msg += 'Url: '+item['url']
                 await echo_message(bot,text_msg)
 
 asyncio.run(main())
