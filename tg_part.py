@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command ,Message, CommandObject
 import json
 from funpay import get_funpay_pos
+from g2g import g2g_create_offer
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
@@ -52,7 +53,7 @@ async def cmd_settimer(
         return
     # Пробуем разделить аргументы на две части по первому встречному пробелу
     try:
-        url = command.args
+        url,game,tp = command.args.split(" ")
     # Если получилось меньше двух частей, вылетит ValueError
     except ValueError:
         await message.answer(
@@ -63,11 +64,15 @@ async def cmd_settimer(
     data = get_funpay_pos(url)
     await message.answer(
         "Funpay запарсен!\n"
+        f"<b>Игра</b>: {game}\n"
+        f"<b>Тип</b>: {tp}\n"
         f"<b>Новая цена</b>: {data['price']}\n"
         f"<b>Название</b>: {data['desc']}\n"
         f"<b>Описание</b>: {data['full_desc']}\n"
         # f"Другие характеристики: {data['other_params']}"
     )
+
+    await g2g_create_offer(data)
 
 if __name__ == "__main__":
     asyncio.run(start_bot())

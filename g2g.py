@@ -58,7 +58,7 @@ async def get_messages():
         
         return ls
 
-async def g2g_create_order(data:dict={}):
+async def g2g_create_offer(data:dict={}):
     
     data_dir = "./data1/"
     async with async_playwright() as p:
@@ -73,6 +73,8 @@ async def g2g_create_order(data:dict={}):
             print('No cookies')
         page = await browser.new_page()
         await page.goto("https://www.g2g.com/sell/index",timeout=0)
+    
+
         time.sleep(1000)
 
 
@@ -115,5 +117,5 @@ async def g2g_unread_message(page,name,unread_msg):
 
     return message_list
 
-
-asyncio.run(g2g_create_order())
+if __name__ == '__main__':
+    asyncio.run(g2g_create_offer())
