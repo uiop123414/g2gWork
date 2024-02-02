@@ -2,7 +2,8 @@ import requests
 import json
 
 def translate(text:str):
-    IAM_TOKEN = "t1.9euelZrNyZrHm4vOy4uVi5vLz8uMke3rnpWalZ3KmZuex5STl8iNk8nImZbl8_ccFRBS-e9oZzZ9_N3z91xDDVL572hnNn38zef1656VmpOcj8aKyszNis2Zjc6MzM3O7_zF656VmpOcj8aKyszNis2Zjc6MzM3O.9LxP-JU-2gtGM-KFpWLUAWfpYHm0kw2n4CQPn16Wo6sd2hfpp0eB578Zf2MJwm6f42ORZwGE8mSOMreE8rIqCg"
+    #https://cloud.yandex.com/ru/docs/iam/operations/iam-token/create#api_1
+    IAM_TOKEN = get_IAM_TOKEN()
     folder_id = 'b1gv13ghfh7selgeug5k'
     target_language = 'en'
     texts = [text]
@@ -23,3 +24,17 @@ def translate(text:str):
         headers = headers
     ).text)
     return response['translations'][0]['text']
+
+def get_IAM_TOKEN():
+
+    url = "https://iam.api.cloud.yandex.net/iam/v1/tokens"
+    headers = {"Content-Type": "application/json"}
+
+    data = {
+        "yandexPassportOauthToken": "y0_AgAAAAAWU2FxAATuwQAAAAD5sFk-AABjEc2ox4hJBrlaJBMUr4X6yCsLog"
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+
+    return response.json()['iamToken']
