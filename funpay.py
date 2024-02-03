@@ -11,7 +11,7 @@ def get_funpay_pos(url:str='https://funpay.com/lots/offer?id=25652267'):
     req = requests.get(url=url)
     selector = Selector(text=req.text)
     price = float(selector.xpath('//html/body/div/div[1]/section/div[2]/div/div/div/div[2]/div/div[2]/form/div[1]/select/option[1]').get().split(" ₽")[0].split('class="payment-value"&gt;от')[-1].replace(' ',''))
-    price = round(CurrencyConverter().convert(price,'RUB','USD'),2)
+    price = round(CurrencyConverter().convert(price,'RUB','EUR'),2)
     print(price,'$')
 
 

@@ -3,6 +3,9 @@ from playwright.async_api import async_playwright
 import time
 from bs4 import BeautifulSoup
 import asyncio
+import playwright
+import offer_creation
+
 def g2g_fm(page,name):
 
     page.locator(f'div:text("{name}")').click()
@@ -73,11 +76,52 @@ async def g2g_create_offer(data:dict={}):
             print('No cookies')
         page = await browser.new_page()
         await page.goto("https://www.g2g.com/sell/index",timeout=0)
-    
 
-        time.sleep(1000)
+        #sell/index part
+        await page.get_by_title('Select service').click()
+        await page.locator('.select2-search__field').click()
+        await page.keyboard.type(data['type'])
+        await page.keyboard.press('Enter')
+        
+        #offer/sel part
+        time.sleep(15)
+
+        await page.locator('xpath=//html/body/div[1]/div/div[1]/main/div[3]/div[2]/div[1]/div/div/div[2]/form/div[2]/div[2]/div[1]/div/span/div/button/span[2]/span').click()
+        await page.get_by_placeholder('Type to filter').click()
+        await page.keyboard.type(data['game'])
+        time.sleep(5)
+
+        
+        try:
+            await page.get_by_text(data['game']).click()    
+        except:
+            await page.get_by_text(data['game']).first.click()
 
 
+        await page.get_by_text('Continue').click()
+        #offer/N/edit part 
+        time.sleep(10)
+        offers = {
+            'Dota 2': offer_creation.account_Dota2,
+            'Escape from Tarkov': offer_creation.account_EFT,
+            'Counter-Strike 2': offer_creation.account_CS,
+            'Valorant': offer_creation.account_Val,
+        }
+        await offers[data['game']](page,data)
+
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[1]/div[1]/div/div/div[3]/div[2]/div[1]/div/div[2]/div[1]/div/span/label/div/div[1]/div[2]/input').click()
+        await page.keyboard.type(data['desc'])
+
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[1]/div[1]/div/div/div[3]/div[2]/div[2]/div/div[2]/div[1]/div/span/label/div/div[1]/div[2]/textarea').click()
+        await page.keyboard.type(data['full_desc'])
+
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[3]/div[1]/div/div/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[2]/span/label/div/div/div[2]/input').dblclick()
+        await page.keyboard.type(str(data['price']))
+
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[4]/div[1]/div/div/div[1]/span/label/div/div/div/div/div/div[2]/div/div/div[1]').click()
+        time.sleep(10)
+
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[7]/div/div/div/div[2]/button/span[2]').click()
 
 async def g2g_unread_message(page,name,unread_msg):
     await page.locator(f'div:text("{name}")').click()
@@ -118,4 +162,5 @@ async def g2g_unread_message(page,name,unread_msg):
     return message_list
 
 if __name__ == '__main__':
-    asyncio.run(g2g_create_offer())
+    asyncio.run(g2g_create_offer({'game':'Dota 2','type':'Accounts'}))
+

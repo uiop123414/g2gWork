@@ -53,7 +53,7 @@ async def cmd_settimer(
         return
     # Пробуем разделить аргументы на две части по первому встречному пробелу
     try:
-        url,game,tp = command.args.split(" ")
+        url,game,tp,*other = command.args.split(" ")
     # Если получилось меньше двух частей, вылетит ValueError
     except ValueError:
         await message.answer(
@@ -61,7 +61,19 @@ async def cmd_settimer(
             "/settimer <url> "
         )
         return
+    
     data = get_funpay_pos(url)
+
+    result_dict = {}
+    for item in other:
+        key, value = item.split('=')
+        result_dict[key] = value.rstrip().replace("_"," ")
+        data[key] = value.rstrip().replace("_"," ")
+
+    
+    
+    game = game.replace("_"," ")
+
     await message.answer(
         "Funpay запарсен!\n"
         f"<b>Игра</b>: {game}\n"
@@ -69,8 +81,11 @@ async def cmd_settimer(
         f"<b>Новая цена</b>: {data['price']}\n"
         f"<b>Название</b>: {data['desc']}\n"
         f"<b>Описание</b>: {data['full_desc']}\n"
-        # f"Другие характеристики: {data['other_params']}"
+        f"Другие характеристики: {result_dict}"
     )
+
+    data['game'] = game
+    data['type'] = tp
 
     await g2g_create_offer(data)
 
