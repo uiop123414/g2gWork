@@ -4,13 +4,17 @@ from bs4 import BeautifulSoup
 from parsel import Selector
 from currency_converter import CurrencyConverter
 from translator import translate
-
+import asyncio
 
 
 def get_funpay_pos(url:str='https://funpay.com/lots/offer?id=25652267'):
     req = requests.get(url=url)
     selector = Selector(text=req.text)
-    price = float(selector.xpath('//html/body/div/div[1]/section/div[2]/div/div/div/div[2]/div/div[2]/form/div[1]/select/option[1]').get().split(" ₽")[0].split('class="payment-value"&gt;от')[-1].replace(' ',''))
+    try:
+        price = float(selector.xpath('//html/body/div/div[1]/section/div[2]/div/div/div/div[2]/div/div[2]/form/div[1]/select/option[1]').get().split(" ₽")[0].split('class="payment-value"&gt;от')[-1].replace(' ',''))
+    except AttributeError:
+        print("Empty offer")
+        
     price = round(CurrencyConverter().convert(price,'RUB','EUR'),2)
     print(price,'$')
 
@@ -34,3 +38,15 @@ def get_funpay_pos(url:str='https://funpay.com/lots/offer?id=25652267'):
     return {'price':price,'desc':description,'full_desc':full_description,'other_params':param_rows}
 
 
+async def g2g_check(url:str):
+    req = requests.get(url=url)
+    selector = Selector(text=req.text)
+    text = selector.xpath('//html/body/div/div[1]/section/div[2]/div/div[1]/div/div/p').get()
+
+    if text != None and 'Предложение устарело, было удалено или не существовало вовсе.' in text:
+        return True
+    return False
+
+
+if __name__ == "__main__":
+    print(asyncio.run(g2g_check('https://funpay.com/lots/offer?id=25790923')))

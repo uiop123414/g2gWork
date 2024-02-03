@@ -5,6 +5,8 @@ from aiogram.filters.command import Command ,Message, CommandObject
 import json
 from funpay import get_funpay_pos
 from g2g import g2g_create_offer
+from db import get_active_offer , save_offer
+
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
@@ -40,7 +42,7 @@ async def start_bot():
 
 
 @dp.message(Command("funpay_url"))
-async def cmd_settimer(
+async def create_offer(
         message: Message,
         command: CommandObject
 ):
@@ -54,6 +56,7 @@ async def cmd_settimer(
     # Пробуем разделить аргументы на две части по первому встречному пробелу
     try:
         url,game,tp,*other = command.args.split(" ")
+
     # Если получилось меньше двух частей, вылетит ValueError
     except ValueError:
         await message.answer(
@@ -62,8 +65,12 @@ async def cmd_settimer(
         )
         return
     
+    save_offer(url)
+
+
     data = get_funpay_pos(url)
 
+    data['koef']=1.0
     result_dict = {}
     for item in other:
         key, value = item.split('=')
@@ -73,6 +80,8 @@ async def cmd_settimer(
     
     
     game = game.replace("_"," ")
+
+    data['price'] *= float(data.get('koef',1.0))# multiply koef price
 
     await message.answer(
         "Funpay запарсен!\n"
@@ -89,5 +98,18 @@ async def cmd_settimer(
 
     await g2g_create_offer(data)
 
+async def check(bot):
+    #NOT TESTED
+    offers = get_active_offer()
+
+    if offers != []:
+        for offer in offers:
+            with open("data.json", "r") as f:
+                users = json.loads(f.read())
+            for user in users:
+                await bot.send_message(user, offer[0])
+
 if __name__ == "__main__":
     asyncio.run(start_bot())
+
+

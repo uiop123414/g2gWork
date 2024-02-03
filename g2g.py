@@ -25,7 +25,7 @@ def extract_data_from_span(span):
 async def get_messages():
     data_dir = "./data1/"
     async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(headless = False,user_data_dir=data_dir)
+        browser = await p.firefox.launch_persistent_context(headless = False,user_data_dir=data_dir)
         try:
 
             # Load the cookies
@@ -36,9 +36,9 @@ async def get_messages():
             print('No cookies')
         page = await browser.new_page()
         await page.goto("https://www.g2g.com/chat/#/")
-        time.sleep(100)
+        # time.sleep(10)
         # Wait for the element to be present
-        page.wait_for_selector('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
+        await page.wait_for_selector('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
         # Get the inner HTML of the specified element
         inner_html = await page.inner_html('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
         soup = BeautifulSoup(inner_html, 'html.parser')
@@ -59,7 +59,8 @@ async def get_messages():
             if item['unread_msg'] > 0:
                 ls.append({'username':item['username'],'messages':await g2g_unread_message(page,item['username'],item['unread_msg'])})
         
-        return ls
+        return ls.reverse()
+
 
 async def g2g_create_offer(data:dict={}):
     
@@ -86,12 +87,16 @@ async def g2g_create_offer(data:dict={}):
         #offer/sel part
         time.sleep(15)
 
-        await page.locator('xpath=//html/body/div[1]/div/div[1]/main/div[3]/div[2]/div[1]/div/div/div[2]/form/div[2]/div[2]/div[1]/div/span/div/button/span[2]/span').click()
+        #  Select brand
+        await page.get_by_text('Select brand').click()
+        #same as upper
+        # await page.locator('xpath=//html/body/div[1]/div/div[1]/main/div[3]/div[2]/div[1]/div/div/div[2]/form/div[2]/div[2]/div[1]/div/span/div/button/span[2]/span').click()
         await page.get_by_placeholder('Type to filter').click()
         await page.keyboard.type(data['game'])
         time.sleep(5)
 
         
+
         try:
             await page.get_by_text(data['game']).click()    
         except:
@@ -162,5 +167,5 @@ async def g2g_unread_message(page,name,unread_msg):
     return message_list
 
 if __name__ == '__main__':
-    asyncio.run(g2g_create_offer({'game':'Dota 2','type':'Accounts'}))
+    asyncio.run(get_messages())
 
