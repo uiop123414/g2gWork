@@ -3,18 +3,34 @@ from playwright.async_api import async_playwright
 import time
 from bs4 import BeautifulSoup
 import asyncio
-import playwright
 import offer_creation
+from db import save_user , get_users
 
-def g2g_fm(page,name):
 
-    page.locator(f'div:text("{name}")').click()
-    time.sleep(5)
-    page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[1]/div/div[2]/div/p').click()
-    page.keyboard.type('Default message')
-    page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[2]/div[2]/button/span[2]').click()    
-    time.sleep(5)
-        # Save the cookies
+async def g2g_fm(name):
+    data_dir = "./data1/"
+
+    users =  get_users()
+    for user in users:
+        if user[0]==name:
+            return
+        
+    save_user(name)
+    async with async_playwright() as p:
+
+        browser = await p.chromium.launch_persistent_context(headless = False,user_data_dir=data_dir,channel="chrome")
+
+        page = await browser.new_page()
+        await page.goto("https://www.g2g.com/chat/#/",timeout=0)
+        await page.locator(f'div:text("{name}")').click()
+        
+        time.sleep(5)
+        await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[1]/div/div[2]/div/p').click()
+        await page.keyboard.type('Default message')
+        await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[2]/div[2]/button/span[2]').click()    
+    # Save the cookies
+    
+
 def extract_data_from_span(span):
     badge = span.find('div', {'class': 'q-badge'})
     if badge:
@@ -25,7 +41,7 @@ def extract_data_from_span(span):
 async def get_messages():
     data_dir = "./data1/"
     async with async_playwright() as p:
-        browser = await p.firefox.launch_persistent_context(headless = False,user_data_dir=data_dir)
+        browser = await p.chromium.launch_persistent_context(headless = False,user_data_dir=data_dir,channel="chrome")
         try:
 
             # Load the cookies
@@ -35,7 +51,7 @@ async def get_messages():
         except (FileNotFoundError,json.decoder.JSONDecodeError):
             print('No cookies')
         page = await browser.new_page()
-        await page.goto("https://www.g2g.com/chat/#/")
+        await page.goto("https://www.g2g.com/chat/#/",timeout=0)
         # time.sleep(10)
         # Wait for the element to be present
         await page.wait_for_selector('//html/body/div[1]/div/div/div/div[1]/div/div/div[4]/div/div[2]/div/div[1]')
@@ -59,14 +75,15 @@ async def get_messages():
             if item['unread_msg'] > 0:
                 ls.append({'username':item['username'],'messages':await g2g_unread_message(page,item['username'],item['unread_msg'])})
         
-        return ls.reverse()
+        ls.reverse()
+        return ls
 
 
 async def g2g_create_offer(data:dict={}):
     
     data_dir = "./data1/"
     async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(headless = False,user_data_dir=data_dir)
+        browser = await p.firefox.launch_persistent_context(headless = False,user_data_dir=data_dir)
         try:
 
             # Load the cookies

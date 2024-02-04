@@ -1,4 +1,4 @@
-from g2g import get_messages
+from g2g import get_messages,g2g_fm
 from funpay import get_funpay_pos
 from tg_part import start_bot ,echo_message,bot ,check
 import asyncio
@@ -8,14 +8,20 @@ async def main():
     while True:
         print('Start work')
         ls = await get_messages()
-        if ls != []:
+        if ls != [] and ls != None:
             for item in ls:
+                #SEND FIRST MESSAGE 
+                await g2g_fm(item['username'])
+                
+                
+                #CHECH FOR NEW MESSAGES
                 text_msg = "Nickname "+item['username']
                 for message in item['messages']:
                     text_msg +='\nMessage: '+message['content']
                 # text_msg += 'Url: '+item['url']
                 await echo_message(bot,text_msg)
-                await check(bot)
+        #CHECK FUNPAY ORDER EXISTS        
+        await check(bot)
 
 asyncio.run(main())
 

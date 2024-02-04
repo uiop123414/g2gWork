@@ -3,9 +3,9 @@ import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command ,Message, CommandObject
 import json
-from funpay import get_funpay_pos
+from funpay import get_funpay_pos , funpay_check
 from g2g import g2g_create_offer
-from db import get_active_offer , save_offer
+from db import get_active_offer , save_offer ,set_disactive
 
 
 # Включаем логирование, чтобы не пропустить важные сообщения
@@ -101,13 +101,15 @@ async def create_offer(
 async def check(bot):
     #NOT TESTED
     offers = get_active_offer()
-
+    
     if offers != []:
         for offer in offers:
-            with open("data.json", "r") as f:
-                users = json.loads(f.read())
-            for user in users:
-                await bot.send_message(user, offer[0])
+            if(await funpay_check(offer[0])):
+                with open("data.json", "r") as f:
+                    users = json.loads(f.read())
+                for user in users:
+                    await bot.send_message(user, "Внимание !!!\n"+offer[0]+"\nБольше не действителен , нужно удалить оффер с G2G!!!")
+                set_disactive(offer[0])
 
 if __name__ == "__main__":
     asyncio.run(start_bot())

@@ -38,7 +38,11 @@ def get_funpay_pos(url:str='https://funpay.com/lots/offer?id=25652267'):
     return {'price':price,'desc':description,'full_desc':full_description,'other_params':param_rows}
 
 
-async def g2g_check(url:str):
+async def funpay_check(url:str):
+    """
+    True - is not exists 
+    False - exits
+    """
     req = requests.get(url=url)
     selector = Selector(text=req.text)
     text = selector.xpath('//html/body/div/div[1]/section/div[2]/div/div[1]/div/div/p').get()
@@ -49,4 +53,4 @@ async def g2g_check(url:str):
 
 
 if __name__ == "__main__":
-    print(asyncio.run(g2g_check('https://funpay.com/lots/offer?id=25790923')))
+    print(asyncio.run(funpay_check('https://funpay.com/lots/offer?id=25790923')))
