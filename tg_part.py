@@ -65,8 +65,6 @@ async def create_offer(
         )
         return
     
-    save_offer(url)
-
 
     data = get_funpay_pos(url)
 
@@ -96,7 +94,10 @@ async def create_offer(
     data['game'] = game
     data['type'] = tp
 
+    save_offer(url,data['desc'])
     await g2g_create_offer(data)
+    
+
 
 async def check(bot):
     #NOT TESTED
@@ -108,7 +109,7 @@ async def check(bot):
                 with open("data.json", "r") as f:
                     users = json.loads(f.read())
                 for user in users:
-                    await bot.send_message(user, "Внимание !!!\n"+offer[0]+"\nБольше не действителен , нужно удалить оффер с G2G!!!")
+                    await bot.send_message(user, "Внимание !!!\n"+offer[0]+"\nБольше не действителен , нужно удалить оффер с G2G!!!\nG2G NAME = "+offer[1])
                 set_disactive(offer[0])
 
 if __name__ == "__main__":

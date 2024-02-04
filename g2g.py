@@ -23,7 +23,7 @@ async def g2g_fm(name):
         page = await browser.new_page()
         await page.goto("https://www.g2g.com/chat/#/",timeout=0)
         await page.locator(f'div:text("{name}")').click()
-        
+
         time.sleep(5)
         await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[1]/div/div[2]/div/p').click()
         await page.keyboard.type('Default message')
@@ -83,7 +83,7 @@ async def g2g_create_offer(data:dict={}):
     
     data_dir = "./data1/"
     async with async_playwright() as p:
-        browser = await p.firefox.launch_persistent_context(headless = False,user_data_dir=data_dir)
+        browser = await p.chromium.launch_persistent_context(headless = False,user_data_dir=data_dir)
         try:
 
             # Load the cookies
@@ -141,9 +141,18 @@ async def g2g_create_offer(data:dict={}):
         await page.keyboard.type(str(data['price']))
 
         await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[4]/div[1]/div/div/div[1]/span/label/div/div/div/div/div/div[2]/div/div/div[1]').click()
-        time.sleep(10)
+       
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[4]/div[1]/div/div/div[3]/div[2]/form/div[1]/div/div[3]/div[2]/div/div[1]/div/button/span[2]/span').click()
+        await page.get_by_text('1 hour').first.click()
+        # time.sleep(10)
 
+        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[4]/div[1]/div/div/div[3]/div[2]/form/div[1]/div/div[2]/span/div[2]/div/div/div/div/div[3]/span/label/div/div/div[2]/input').click()
+        await page.keyboard.type('1')
+
+        #post new offer
         await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[7]/div/div/div/div[2]/button/span[2]').click()
+    
+        time.sleep(3)
 
 async def g2g_unread_message(page,name,unread_msg):
     await page.locator(f'div:text("{name}")').click()
