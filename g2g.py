@@ -6,9 +6,13 @@ import asyncio
 import offer_creation
 from db import save_user , get_users
 
+#chatGPT api ket = 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
+
 
 async def g2g_fm(name):
     data_dir = "./data1/"
+
+    text = "Default message"
 
     users =  get_users()
     for user in users:
@@ -25,11 +29,14 @@ async def g2g_fm(name):
         await page.locator(f'div:text("{name}")').click()
 
         time.sleep(5)
-        await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[1]/div/div[2]/div/p').click()
-        await page.keyboard.type('Default message')
-        await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[2]/div[2]/button/span[2]').click()    
+        g2g_send_message(page,text)    
     # Save the cookies
-    
+
+async def g2g_send_message(page,text:str):
+    await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[1]/div/div[2]/div/p').click()
+    await page.keyboard.type(text)
+    await page.locator('xpath=//html/body/div[1]/div/div/div/div[3]/div[2]/div/div/div/div[3]/div/div/div[2]/form/div[2]/div[2]/button/span[2]').click()    
+
 
 def extract_data_from_span(span):
     badge = span.find('div', {'class': 'q-badge'})

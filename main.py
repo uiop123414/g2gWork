@@ -1,6 +1,5 @@
-from g2g import get_messages,g2g_fm
-from funpay import get_funpay_pos
-from tg_part import start_bot ,echo_message,bot ,check
+from g2g import get_messages, g2g_fm
+from tg_part import echo_message, bot ,check
 import asyncio
 
 async def main():
