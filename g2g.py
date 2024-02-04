@@ -157,7 +157,7 @@ async def g2g_create_offer(data:dict={}):
         await page.keyboard.type('1')
 
         #post new offer
-        await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[7]/div/div/div/div[2]/button/span[2]').click()
+        # await page.locator('xpath=/html/body/div[1]/div/div[1]/main/div[3]/form/div/div[7]/div/div/div/div[2]/button/span[2]').click()
     
         time.sleep(3)
 

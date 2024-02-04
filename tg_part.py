@@ -94,6 +94,7 @@ async def create_offer(
     data['game'] = game
     data['type'] = tp
 
+    print(data['desc'])
     save_offer(url,data['desc'])
     await g2g_create_offer(data)
     
