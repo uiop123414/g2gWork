@@ -11,7 +11,7 @@ from db import get_active_offer , save_offer ,set_disactive
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
-bot = Bot(token="6232994935:AAFYYNvIhwy8WTtJ26XyQWzgUkiQIy6JLZY",parse_mode='HTML')
+bot = Bot(token="#",parse_mode='HTML')
 # Диспетчер
 dp = Dispatcher()
 users = []
