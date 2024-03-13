@@ -6,7 +6,7 @@ import asyncio
 import offer_creation
 from db import save_user , get_users
 
-#chatGPT api ket = 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
+#chatGPT api ket = #
 
 
 async def g2g_fm(name):
